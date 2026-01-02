@@ -3,7 +3,7 @@ export let GameData: gameData = {
     gameWidth: 1280,
     gameHeight: 800,
     bgColor: "#000000",
-    debug: false
+    debug: true
   },
 
   preloader: {
@@ -21,17 +21,17 @@ export let GameData: gameData = {
   
   spritesheets: [
 
-    { name: "player", path: "assets/images/DeathMessanger.png", width: 30, height: 50, frames: 2 },
-    { name: "fabrizio", path: "assets/images/Fabrizio.png", width: 40, height: 50, frames: 4 },
-    { name: "melemia", path: "assets/images/Melemia.png", width: 40, height: 70, frames: 4 },
-    { name: "abyssman", path: "assets/images/AbyssMan.png", width: 40, height: 70, frames: 4 },
+    { name: "player", path: "assets/images/DeathMessanger.png", width: 64, height: 92, frames: 2 },
+    { name: "fabrizio", path: "assets/images/Fabrizio.png", width: 82, height:124, frames: 6 },
+    { name: "melemia", path: "assets/images/Melemia.png", width: 82, height: 124, frames: 6 },
+    { name: "abyssman", path: "assets/images/AbyssMan.png", width: 82, height: 124, frames: 6 },
 
 
   ],
   images: [
     { name: "sfondoMenu", path: "assets/images/sfondoMenu.png" },
     { name: "sfondoBoss01", path: "assets/images/SfondoBoss01.png" },
-    { name: "sfondoBoss02", path: "assets/images/SfondoBoss02.png" },
+    { name: "sfondo02", path: "assets/images/sfondoBoss02.png" },
     { name: "sfondoBoss03", path: "assets/images/SfondoBoss03.png" },
     { name: "BootImage", path: "assets/images/preloaderImage.png" },
     { name: "Luna", path: "assets/images/Luna.png" },

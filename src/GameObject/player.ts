@@ -9,11 +9,11 @@ export default class Player extends Phaser.GameObjects.Sprite implements IPlayer
     private _genericConfig: genericConfig;
     private game:boolean = true;
     private _dmg: Phaser.Sound.BaseSound;
-    
+
     
     nome: string;
     Vita: number;
-    maxVita: number;
+    maxVita: number; 
     Mana: number;
     maxMana: number;
     mosse: iMosse[];
@@ -52,7 +52,7 @@ export default class Player extends Phaser.GameObjects.Sprite implements IPlayer
             if(x.Vita == 0){
                 this._vittoria = true;
                 this.vittoria(liv, fase);
-                let polloArrosto = this.scene.physics.add.sprite(900, 250, sp, 3).setScale(6).setDepth(1);
+                let polloArrosto = this.scene.physics.add.sprite(900, 250, sp, 5).setScale(4).setDepth(1);
                 polloArrosto.setAngularVelocity(n);
                 y.destroy();
                 this.game = false;
@@ -100,7 +100,36 @@ export default class Player extends Phaser.GameObjects.Sprite implements IPlayer
                 },
             });
 
-            _Test.on("pointerdown", () =>{
+
+            this.scene.input.keyboard.on( "keydown-SPACE",() => {
+                if(_pallino.x > 500 && _pallino.x < 780){
+                    x.Vita -= this.mossaSelected.danno;
+                    if(x.Vita > 0){
+                        this.scene.add.tween({
+                            targets: y,
+                            x: y.x + 20,
+                            ease: 'Sine.easeInOut',
+                            duration: 20,
+                            yoyo: true, 
+                            repeat: 10, 
+                            callbacks: () => {
+                                y.setFrame(4);
+                            },
+                            onComplete: () => {
+                                y.setFrame(0);
+                            },
+                        });
+                    }
+                    z.clear();
+                    if(x.Vita <= 0){
+                        x.Vita = 0;
+                    }
+                    z.fillRect(20, 50, x.Vita, 20).lineStyle(4, 0x000000, 1).fillRoundedRect(20, 50,  x.Vita, 20, 10)
+                    .strokeRoundedRect(20, 50,  x.Vita, 20, 10);
+                }
+                _container.destroy();
+            });
+            /*_Test.on("pointerdown", () =>{
                 if(_pallino.x > 500 && _pallino.x < 780){
                     x.Vita -= this.mossaSelected.danno;
                     if(x.Vita > 0){
@@ -128,6 +157,7 @@ export default class Player extends Phaser.GameObjects.Sprite implements IPlayer
                 }
                 _container.destroy();
             });
+            */
             this.fineTurno();
             return this.mossaSelected.danno;
             
@@ -300,7 +330,7 @@ activeDefence01(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
     }
 
     if(this._vittoria == false){
-    let image = this.scene.add.image(0, 0, "sfondoBoss01").setOrigin(0, 0).setScale(10).setDepth(1002);
+    let image = this.scene.add.image(0, 0, "sfondoBoss01").setOrigin(0, 0).setScale(5).setDepth(1002);
     let _box = this.scene.add.image(1280 / 2, 400,"BOX").setScale(4).setDepth(1002);
     let _border: Phaser.GameObjects.Image = this.scene.add.image(1280 / 2, 400, "BOX_BORDER").setScale(4).setDepth(1003);
     this.scene.physics.world.enable(_border);
@@ -326,7 +356,7 @@ activeDefence01(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
 
         let _axe: Phaser.GameObjects.Sprite = this.scene.add
             .sprite(Phaser.Math.RND.between(100, 1180), Phaser.Math.RND.pick([50, 750]), "AXE")
-            .setScale(3)
+            .setScale(1)
             .setDepth(1002)
             .setOrigin(.5);
 
@@ -393,7 +423,7 @@ activeDefence01(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
 
 activeDefence02(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
     if (this._vittoria == false) {
-        let image = this.scene.add.image(0, 0, "sfondoBoss02").setOrigin(0, 0).setScale(10).setDepth(1002);
+        let image = this.scene.add.image(0, 0, "sfondo02").setOrigin(0, 0).setScale(10).setDepth(1002);
         let _box = this.scene.add.image(1280 / 2, 400, "BOX").setScale(4).setDepth(1002);
         let _border: Phaser.GameObjects.Image = this.scene.add.image(1280 / 2, 400, "BOX_BORDER").setScale(4).setDepth(1003);
         this.scene.physics.world.enable(_border);
@@ -412,8 +442,8 @@ activeDefence02(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
 
         let controllo: boolean = true;
 
-        let _weapon1: Phaser.GameObjects.Sprite = this.scene.physics.add.sprite(450, 400, "Falce").setDepth(1002).setScale(2.5);
-        let _weapon2: Phaser.GameObjects.Sprite = this.scene.physics.add.sprite(850, 400, "Falce").setDepth(1002).setScale(2.5);
+        let _weapon1: Phaser.GameObjects.Sprite = this.scene.physics.add.sprite(450, 400, "Falce").setDepth(1002).setScale(1);
+        let _weapon2: Phaser.GameObjects.Sprite = this.scene.physics.add.sprite(850, 400, "Falce").setDepth(1002).setScale(1);
         let weaponBody1: Phaser.Physics.Arcade.Body = <Phaser.Physics.Arcade.Body>_weapon1.body;
         weaponBody1.setAngularVelocity(700)
             .setVelocityX(Phaser.Math.RND.between(-500, 500))
@@ -481,7 +511,7 @@ activeDefence02(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
 
 activeDefence03(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
     if(this._vittoria == false){
-        let image = this.scene.add.image(0, 0, "sfondoBoss03").setOrigin(0, 0).setScale(10).setDepth(1002);
+        let image = this.scene.add.image(0, 0, "sfondoBoss03").setOrigin(0, 0).setScale(5).setDepth(1002);
         let _box = this.scene.add.image(1280 / 2, 400,"BOX").setScale(4).setDepth(1002);
         let _border: Phaser.GameObjects.Image = this.scene.add.image(1280 / 2, 400, "BOX_BORDER").setScale(4).setDepth(1003);
         this.scene.physics.world.enable(_border);
@@ -509,7 +539,7 @@ activeDefence03(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
     
             let _Croce: Phaser.GameObjects.Sprite = this.scene.add
                 .sprite(Phaser.Math.RND.between(300, 900), 0, "Croci")
-                .setScale(4)
+                .setScale(1)
                 .setDepth(1002)
                 .setOrigin(.5);
     
@@ -523,8 +553,8 @@ activeDefence03(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
             if(x.Vita < x.maxVita/2){
                 let _Croce2: Phaser.GameObjects.Sprite = this.scene.add
                 .sprite(Phaser.Math.RND.pick([0, 1200]), Phaser.Math.RND.between(150, 650), "Croci")
-                .setAngle(0)
-                .setScale(2)
+                .setAngle(90)
+                .setScale(.5)
                 .setDepth(1002)
                 .setOrigin(.5);
 
@@ -602,9 +632,6 @@ activeDefence03(x: IPlayer, z: Phaser.GameObjects.Graphics): void {
         }
     }
 }
-
-
-
 
 
 

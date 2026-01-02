@@ -91,7 +91,7 @@ export default class Boss01 extends Phaser.Scene {
       { nome: "mita destroyer", danno: 9999999, costo: 4 }
     ]);
     this._playerSprite = this.add.sprite(300, 550, "player", 0).setDepth(1)
-    .setScale(10);
+    .setScale(5);
     this.anims.create({
       key: "idle",
       frames: this.anims.generateFrameNumbers("player", { start: 0, end: 1 }),
@@ -123,11 +123,11 @@ export default class Boss01 extends Phaser.Scene {
     },"Fabrizio", 600, 600, 100, 100, [
       { nome: "axe smite", danno: 123, costo: 1 },
     ]);
-    this._bossSprite = this.add.sprite(900, 250, "fabrizio", 0).setScale(10).setDepth(1);
+    this._bossSprite = this.add.sprite(900, 300, "fabrizio", 0).setScale(4).setDepth(1);
     this.anims.create({
       key: "idleC",
-      frames: this.anims.generateFrameNumbers("fabrizio", { start: 0, end: 1 }),
-      frameRate: 1,
+      frames: this.anims.generateFrameNumbers("fabrizio", { start: 0, end: 3 }),
+      frameRate: 4,
       repeat: -1
     });
     
@@ -137,7 +137,7 @@ export default class Boss01 extends Phaser.Scene {
 
 
 
-    this._sfondo = this.add.image(0, 0, "sfondoBoss01").setOrigin(0, 0).setDepth(0).setScale(10);
+    this._sfondo = this.add.image(0, 0, "sfondoBoss01").setOrigin(0, 0).setDepth(0).setScale(5);
     let _sfondoNero: Phaser.GameObjects.Image = this.add.image(0, 0, "sfondoNero").setOrigin(0, 0).setAlpha(1).setDepth(1002);
     this.add.tween({
       targets: _sfondoNero,
@@ -228,7 +228,7 @@ export default class Boss01 extends Phaser.Scene {
       this._click.play();
       this._player.inventory(this._Mana, this._playerHealthBar);
     });
-
+ 
     this._restartTextLabel= this.add.text(1280-600+330, 800-70, "RESTART", { 
       fontFamily: "Underdog",
       fontSize: 40,

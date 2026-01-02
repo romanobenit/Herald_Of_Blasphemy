@@ -38,7 +38,7 @@ export default class Intro extends Phaser.Scene {
 
     this.click = this.sound.add("click1", {loop: false});
     this._music = this.sound.add("music", {loop: true});
-    this._background = this.add.image(this.game.canvas.width/2, this.game.canvas.height/2, "sfondoMenu").setOrigin(0.5).setScale(10);
+    this._background = this.add.image(this.game.canvas.width/2, this.game.canvas.height/2, "sfondoMenu").setOrigin(0.5).setScale(5);
     this._luna = this.add.image(100, 100, "Luna").setOrigin(0.5).setScale(2);
     this._Title = this.add.text(this.game.canvas.width/2, 100, "HERALD OF \nBLASPHEMY", {fontSize: "102px", color: "#ffffff", fontFamily:"Underdog"})
     .setOrigin(0.5)
@@ -48,7 +48,7 @@ export default class Intro extends Phaser.Scene {
     this._sfondoNero = this.add.image(0, 0, "sfondoNero").setOrigin(0, 0).setAlpha(0).setDepth(1002);
 
     //PLAYER----------------------------------------------------------------------------------------------------------------
-    this._player = this.add.sprite(150, 550, "player",0).setScale(10).setAlpha(0).setTintFill(0x111111);
+    this._player = this.add.sprite(150, 550, "player",0).setScale(6).setAlpha(0);
     this.anims.create({
       key: "idle",
       frames: this.anims.generateFrameNumbers("player", {start: 0, end: 1}),

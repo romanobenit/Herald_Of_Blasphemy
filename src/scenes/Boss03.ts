@@ -89,7 +89,7 @@ export default class Boss03 extends Phaser.Scene {
       { nome: "God's Touch", danno: 390, costo: 5 }
     ]);
     this._playerSprite = this.add.sprite(300, 550, "player", 0).setDepth(1)
-    .setScale(10);
+    .setScale(5);
     this.anims.create({
       key: "idle",
       frames: this.anims.generateFrameNumbers("player", { start: 0, end: 1 }),
@@ -121,11 +121,11 @@ export default class Boss03 extends Phaser.Scene {
     },"abyssman", 600, 600, 100, 100, [
       { nome: "croce destroyer", danno: 185, costo: 1 },
     ]);
-    this._bossSprite = this.add.sprite(900, 210, "abyssman", 0).setScale(6).setDepth(1);
+    this._bossSprite = this.add.sprite(900, 210, "abyssman", 0).setScale(3).setDepth(1);
     this.anims.create({
       key: "idleC3",
-      frames: this.anims.generateFrameNumbers("abyssman", { start: 0, end: 1 }),
-      frameRate: 1,
+      frames: this.anims.generateFrameNumbers("abyssman", { start: 0, end: 3 }),
+      frameRate: 4,
       repeat: -1
     });
     
@@ -135,7 +135,7 @@ export default class Boss03 extends Phaser.Scene {
 
 
 
-    this._sfondo = this.add.image(0, 0, "sfondoBoss03").setOrigin(0, 0).setDepth(0).setScale(10);
+    this._sfondo = this.add.image(0, 0, "sfondoBoss03").setOrigin(0, 0).setDepth(0).setScale(5);
     let _sfondoNero: Phaser.GameObjects.Image = this.add.image(0, 0, "sfondoNero").setOrigin(0, 0).setAlpha(1).setDepth(1002);
     this.add.tween({
       targets: _sfondoNero,

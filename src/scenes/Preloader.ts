@@ -18,7 +18,7 @@ export default class Preloader extends Phaser.Scene {
 
   preload() {
     this.cameras.main.setBackgroundColor(GameData.globals.bgColor);
-    this.load.image("BootImage", "assets/images/preloaderImage.png");
+    this.load.image("PreImage", "assets/images/preloaderImage_.png");
     this._progress = this.add.graphics();
     this.loadAssets();
   }
@@ -26,7 +26,7 @@ export default class Preloader extends Phaser.Scene {
 create(){
 
   let _sfondoNero: Phaser.GameObjects.Image = this.add.image(0, 0, "sfondoNero").setOrigin(0, 0).setAlpha(0).setDepth(1002);
-  this.add.image(this.game.canvas.width/2, this.game.canvas.height/2, "BootImage").setOrigin(0.5).setScale(10);
+  this.add.image(this.game.canvas.width/2, this.game.canvas.height/2, "PreImage").setOrigin(0.5).setScale(5);
   this._mita = this.add.text(this.game.canvas.width / 2, this.game.canvas.height / 2+100, "Embrace your faith.");
   this._mita.setOrigin(0.5).setInteractive().
   setAlpha(1).setAngle(0)
