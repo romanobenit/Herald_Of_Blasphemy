@@ -1,0 +1,336 @@
+export default class Intro extends Phaser.Scene {
+
+  private _background: Phaser.GameObjects.Sprite;
+  private _Title: Phaser.GameObjects.Text;
+  private _container: Phaser.GameObjects.Container;
+
+  private _sfondoNero: Phaser.GameObjects.Image;
+
+  //BUTTONS----------------------------------------------------------------------------------------------------------------
+  private _startButton: Phaser.GameObjects.Text;
+  private _creditsButton: Phaser.GameObjects.Text;
+  private _optionsButton: Phaser.GameObjects.Text;
+
+
+  //MUSIC----------------------------------------------------------------------------------------------------------------
+  private _music: Phaser.Sound.BaseSound;
+  private click: Phaser.Sound.BaseSound;
+
+
+
+  constructor() {
+    super({
+      key: "Intro",
+    });
+
+  }
+
+  preload() {
+
+  }
+  create() {
+
+    this.registry.set("level", "Boss01");
+    this.registry.set("fase", 200);
+
+    // DEFAULT SETTINGS
+if (this.registry.get("musicOn") === undefined) {
+  this.registry.set("musicOn", true);
+}
+
+if (this.registry.get("controlMode") === undefined) {
+  this.registry.set("controlMode", "WASD"); // Default movement
+}
+
+    this.click = this.sound.add("click1", {loop: false});
+    this._music = this.sound.add("music", {loop: true});
+    this._background = this.add.sprite(this.game.canvas.width/2, this.game.canvas.height/2, "fullSfondo").setOrigin(0.5).setScale(5);
+    this.anims.create({
+    key: "bgAnim",
+    frames: this.anims.generateFrameNumbers("fullSfondo", { start: 0, end: 1 }),
+    frameRate: 5,   
+    repeat: -1      
+  });
+    this._background.play("bgAnim");
+
+    this._Title = this.add.text(this.game.canvas.width/2, 100, "VILLE ENFEU", {fontSize: "95px", color: "#ffffff", fontFamily:"Underdog"})
+    .setOrigin(0.5)
+    .setShadow(2, 2, "#000000", 2, true, true)
+    .setScale(0);
+
+    this._sfondoNero = this.add.image(0, 0, "sfondoNero").setOrigin(0, 0).setAlpha(0).setDepth(1002);
+
+    //BUTTONS----------------------------------------------------------------------------------------------------------------
+    this._startButton = this.add.text(this.game.canvas.width/2, 500, "Start", {fontSize: "72px", color: "#ffffff", fontFamily:"Underdog"})
+    .setShadow(2, 2, "#000000", 2, true, true)
+    .setOrigin(0.5).setScale(0)
+    .on("pointerover", () => {
+      console.log("pointerover");
+      this.onTwiin(this._startButton, 1.5);
+    })
+    .on("pointerout", () => {
+      this.onTwiin(this._startButton, 1);
+    })
+    .on("pointerdown", () => {
+      this.click.play();
+      this.animationSfondoNero();
+    });
+
+    //----------------------------------------------------------------------------------------------------------------
+    this._creditsButton = this.add.text(this.game.canvas.width/2, 600, "Credits", {fontSize: "72px", color: "#ffffff", fontFamily:"Underdog"})
+    .setShadow(2, 2, "#000000", 2, true, true)
+    .setOrigin(0.5).setScale(0)
+    .on("pointerover", () => {
+      this.onTwiin(this._creditsButton, 1.5);
+    })
+    .on("pointerout", () => {
+      this.onTwiin(this._creditsButton, 1);
+    }).on("pointerdown", () => {
+      this.click.play();
+      this.openCredits();
+    });
+
+    //----------------------------------------------------------------------------------------------------------------
+    this._optionsButton = this.add.text(this.game.canvas.width/2, 700, "Options", {fontSize: "72px", color: "#ffffff", fontFamily:"Underdog"})
+    .setShadow(2, 2, "#000000", 2, true, true)
+    .setOrigin(0.5).setScale(0)
+    .on("pointerover", () => {
+      this.onTwiin(this._optionsButton, 1.5);
+    })
+    .on("pointerout", () => {
+      this.onTwiin(this._optionsButton, 1);
+    }).on("pointerdown", () => {
+      this.click.play();
+      this.openOptions();
+    });
+    //----------------------------------------------------------------------------------------------------------------
+
+    //ANIMAZIONI----------------------------------------------------------------------------------------------------------------
+    let _sfondoNero: Phaser.GameObjects.Image = this.add.image(0, 0, "sfondoNero").setOrigin(0, 0).setAlpha(1).setDepth(1002);
+    this.add.tween({
+      targets: _sfondoNero,
+      alpha: 0,
+      duration: 1000,
+      ease: "linear",
+      onComplete: () => {
+        this.add.tween({
+          targets: this._Title,
+          scale: 1,
+          duration: 1000,
+          ease: "linear",
+          repeat: 0,
+          yoyo: false,
+          onComplete: () => {
+            this.add.tween({
+              targets: [this._startButton, this._creditsButton, this._optionsButton],
+              scale: 1,
+              duration: 1000,
+              ease: "linear",
+              repeat: 0,
+              yoyo: false,
+              onComplete: () => {
+                if (this.registry.get("musicOn")) {
+                this._music.play();
+}
+                this._startButton.setInteractive();
+                this._creditsButton.setInteractive();
+                this._optionsButton.setInteractive();
+              }
+            });
+          }
+        });
+      },
+    });
+    
+
+    this._container = this.add.container(0, 0,);
+    let layer: Phaser.GameObjects.Image = this.add.image(0, 0, "layer").
+    setOrigin(0, 0).
+    setInteractive().
+    on("pointerdown", () => {
+      this.closeCredits();
+    });
+
+let _modal: Phaser.GameObjects.Image = this.add.image(1280/2, 800/ 2, "modal").setOrigin(0.5).setInteractive();
+
+let creditLabel: Phaser.GameObjects.Text = this.add.text(1280/2, 200, "Credits").
+setOrigin(0.5).setColor("#ffffff").
+setFontSize(40).
+setFontFamily("Underdog").
+setShadow(2, 2, "#000000", 2, false, true);
+
+let description: Phaser.GameObjects.Text = this.add.text(260, 230, "Made by \n Benito Romano: Graphic Designer & programmer \n Alessio Moscardino: Sound manager & programmer  \n Daniele Sannino: Programmer & bug fixer \n Luca Paparo: Tester \n Ciro Tarantino: Web developer \n \n Audio tracks credits: \n \n Intro: Team Compote").
+setOrigin(0).
+setColor("#ffffff").
+setFontSize(20).
+setFontFamily("Underdog").
+setWordWrapWidth(700);
+
+
+this._container.add([layer,_modal,creditLabel,description]).setAlpha(0);
+
+
+
+
+
+
+
+
+
+  
+  }
+
+
+  
+
+
+  update(time: number, delta: number): void {
+
+  }
+
+
+  //FUNZIONI----------------------------------------------------------------------------------------------------------------
+
+
+  closeCredits(){
+    let _tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+      targets: this._container,
+      alpha: 0,
+      duration: 500,
+  }
+  this.tweens.add(_tween);
+}
+
+openCredits(){
+  let _tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+    targets: this._container,
+    alpha: 1,
+    duration: 500,
+  };
+  this.tweens.add(_tween);
+}
+
+openOptions(){
+  let optionsContainer = this.add.container(0, 0).setAlpha(0);
+
+  let layer: Phaser.GameObjects.Image = this.add.image(0, 0, "layer")
+    .setOrigin(0, 0)
+    .setInteractive()
+    .on("pointerdown", () => {
+      this.closeOptions(optionsContainer);
+    });
+
+  let modal: Phaser.GameObjects.Image = this.add.image(1280 / 2, 800 / 2, "modal")
+    .setOrigin(0.5)
+    .setScale(0.5)
+    .setInteractive();
+
+  let optionsLabel: Phaser.GameObjects.Text = this.add.text(1280 / 2, 305, "Options")
+    .setOrigin(0.5)
+    .setColor("#ffffff")
+    .setFontSize(40)
+    .setFontFamily("Underdog")
+    .setShadow(2, 2, "#000000", 2, false, true);
+
+  let musicToggleButton: Phaser.GameObjects.Text = this.add.text(1280 / 2, 400, this._music.isPlaying ? "Music: ON" : "Music: OFF")
+    .setOrigin(0.5)
+    .setColor("#ffffff")
+    .setFontSize(30)
+    .setFontFamily("Underdog")
+    .setInteractive()
+    .on("pointerdown", () => {
+      let musicOn = this.registry.get("musicOn");
+      if (musicOn) {
+        this._music.stop();
+        musicToggleButton.setText("Music: OFF");
+      } else {
+        this._music.play();
+        musicToggleButton.setText("Music: ON");
+      }
+      this.registry.set("musicOn", !musicOn);
+    });
+
+    // CONTROL TOGGLE BUTTON
+let controlToggleButton: Phaser.GameObjects.Text = this.add.text(
+  1280 / 2,
+  460,
+  "Controls: " + this.registry.get("controlMode")
+)
+  .setOrigin(0.5)
+  .setColor("#ffffff")
+  .setFontSize(30)
+  .setFontFamily("Underdog")
+  .setInteractive()
+  .on("pointerdown", () => {
+
+    let currentMode = this.registry.get("controlMode");
+
+    if (currentMode === "WASD") {
+      this.registry.set("controlMode", "ARROWS");
+      controlToggleButton.setText("Controls: ARROWS");
+    } else {
+      this.registry.set("controlMode", "WASD");
+      controlToggleButton.setText("Controls: WASD");
+    }
+
+  });
+
+  optionsContainer.add([layer, modal, optionsLabel, musicToggleButton, controlToggleButton]);
+
+  let tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+    targets: optionsContainer,
+    alpha: 1,
+    duration: 500,
+  };
+  this.tweens.add(tween);
+}
+
+closeOptions(container: Phaser.GameObjects.Container){
+  let tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+    targets: container,
+    alpha: 0,
+    duration: 500,
+  };
+  this.tweens.add(tween);
+}
+
+animationSfondoNero(){
+  this.add.tween({
+    targets: this._sfondoNero,
+    alpha: 1,
+    duration: 1000,
+    ease: "linear",
+    repeat: 0,
+    onComplete: () => {
+      this._music.stop();
+      this.scene.start("BossLead");
+      this.scene.stop("Intro");
+    },
+  });
+}
+
+
+  
+
+  onTwiin(params: Phaser.GameObjects.Text, x: number): void {
+    this.add.tween({
+      targets: params,
+      scale: x,
+      duration: 100,
+      ease: "linear",
+      repeat: 0,
+    });
+  }
+
+}
+
+/*
+if (this.registry.get("musicOn") === undefined) {
+    this.registry.set("musicOn", true); // Default to music on
+  }
+
+  if (this.registry.get("musicOn")) {
+    this._music.play();
+  }
+
+*/

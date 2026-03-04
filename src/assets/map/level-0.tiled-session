@@ -1,0 +1,41 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "Tutti i file (*)",
+    "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "C:/Users/HWI/Documents/phasergamejamgame/Games/polishaper/src/assets/map/level-0.json": {
+            "scale": 0.53734375,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 961.209653969177,
+                "y": 152.6025007269555
+            }
+        },
+        "C:/Users/HWI/Documents/phasergamejamgame/Games/polishaper/src/assets/map/level-0.json#tilemap": {
+            "scaleInDock": 1
+        },
+        "level-0.json#tilemap-extruded": {
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "C:/Users/HWI/Documents/phasergamejamgame/Games/vampire/src/assets/map",
+    "map.lastUsedFormat": "json",
+    "openFiles": [
+    ],
+    "project": "level-0.tiled-project",
+    "property.type": "string",
+    "recentFiles": [
+        "C:/Users/HWI/Documents/phasergamejamgame/Games/polishaper/src/assets/map/level-0.json"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.margin": 1,
+    "tileset.spacing": 2
+}
