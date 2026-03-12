@@ -107,6 +107,7 @@ export default class Boss01 extends Phaser.Scene {
         { nome: "punch",        danno: 30,  costo: 0 },
         { nome: "smite",        danno: 60,  costo: 1 },
         { nome: "large slayer", danno: 140, costo: 2 },
+        
       ]
     );
 
@@ -192,6 +193,8 @@ export default class Boss01 extends Phaser.Scene {
 
     this._playerManaBar = this.add.graphics();
     this._drawManaBar();
+
+    
 
     // TEXT GUI
     this._textGUI = this.add.image(320, 150, "GUI");
@@ -282,6 +285,8 @@ export default class Boss01 extends Phaser.Scene {
       .on("pointerout",   () => { this._exitButton.setFillStyle(0x000000, 0.6); this._exitTextLabel.setColor("#ffffff"); })
       .on("pointerdown",  () => { this._click.play(); this.showExitConfirm(); });
   }
+
+  
 
   // ─── UPDATE ──────────────────────────────────────────────────────────────
   update(time: number, delta: number): void {
@@ -520,7 +525,7 @@ export default class Boss01 extends Phaser.Scene {
     }
 
     // Testo EVOLUZIONE
-    const evoText = this.add.text(1280 / 2, 300, "✦ EVOLUZIONE! ✦", {
+    const evoText = this.add.text(1280 / 2, 300, " EVOLUZIONE! ", {
       fontFamily: "Underdog", fontSize: 60, color: "#ffdd00",
       stroke: "#000000", strokeThickness: 8,
     }).setOrigin(0.5).setDepth(4001).setScale(0);
@@ -610,7 +615,7 @@ export default class Boss01 extends Phaser.Scene {
         { nome: "large slayer",       danno: 140, costo: 2 },
         { nome: "prayer",             danno: 80,  costo: 1 },
         { nome: "divine attack",      danno: 220, costo: 3 },
-        { nome: "malevolent shrine",  danno: 500, costo: 5 },
+        { nome: "mita destroyer",  danno: 500, costo: 5 },
       ];
       this._player.mossaSelected = this._player.mosse[0];
       this._player.talismanActive = false; // talismano disponibile in inventario fase 3

@@ -104,6 +104,7 @@ export default class Boss02 extends Phaser.Scene {
         { nome: "punch",        danno: 30,  costo: 0 },
         { nome: "smite",        danno: 70,  costo: 1 },
         { nome: "large slayer", danno: 140, costo: 2 },
+        
       ]
     );
 
@@ -195,12 +196,7 @@ export default class Boss02 extends Phaser.Scene {
       .text(-9999, -9999, this._player.Mana.toString(), { fontSize: "1px" })
       .setAlpha(0).setDepth(-1);
 
-    // SHIELD HUD
-    this._shieldHUD = this.add.text(610, 510, "🛡 SHIELD READY", {
-      fontFamily: "Underdog", fontSize: 18, color: "#44aaff",
-      stroke: "#001133", strokeThickness: 4,
-    }).setDepth(1001).setVisible(false);
-
+    
     // BUTTONS
     this._techButton      = this.add.image(1280 - 600,       800 - 70,  "button").setInteractive();
     this._inventoryButton = this.add.image(1280 - 600 + 330, 800 - 157, "button").setInteractive();
@@ -293,14 +289,7 @@ export default class Boss02 extends Phaser.Scene {
     this._drawPlayerHealthBar();
     this._updateScreenShake();
 
-    // HUD scudo
-    if (this._player.shieldUsed) {
-      this._shieldHUD.setText("🛡 SHIELD USED").setColor("#555555").setVisible(true);
-    } else if (this._player.shieldActive) {
-      this._shieldHUD.setText("🛡 SHIELD READY").setColor("#44aaff").setVisible(true);
-    } else {
-      this._shieldHUD.setVisible(false);
-    }
+   
 
     if (this._boss.Vita <= 0 || this._player.Vita <= 0) {
       this._fightEnded = true;
@@ -509,7 +498,7 @@ private _showEvolutionPopup(): void {
       rays.push(ray);
     }
 
-    const evoText = this.add.text(1280 / 2, 300, "✦ EVOLUZIONE! ✦", {
+    const evoText = this.add.text(1280 / 2, 300, " EVOLUZIONE! ", {
       fontFamily: "Underdog", fontSize: 60, color: "#ffdd00",
       stroke: "#000000", strokeThickness: 8,
     }).setOrigin(0.5).setDepth(4001).setScale(0);
@@ -584,7 +573,7 @@ private _showEvolutionPopup(): void {
         { nome: "large slayer",      danno: 140, costo: 2 },
         { nome: "prayer",            danno: 80,  costo: 1 },
         { nome: "divine attack",     danno: 220, costo: 3 },
-        { nome: "malevolent shrine", danno: 500, costo: 5 },
+        { nome: "mita destroyer", danno: 500, costo: 5 },
       ];
       this._player.mossaSelected = this._player.mosse[0];
       this._player.talismanActive = false;

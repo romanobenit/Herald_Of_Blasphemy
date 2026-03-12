@@ -1,7 +1,9 @@
 export default class IntroVideo extends Phaser.Scene {
 
-  private _video: Phaser.GameObjects.Video;
-  private _gone: boolean = false;
+  private _video:    Phaser.GameObjects.Video;
+  private _gone:     boolean = false;
+  private _ended:    boolean = false;
+  private _didSetup: boolean = false;
 
   constructor() {
     super({ key: "IntroVideo" });
@@ -10,60 +12,88 @@ export default class IntroVideo extends Phaser.Scene {
   preload() {}
 
   create() {
-    this._gone = false;
-    const { width, height } = this.game.canvas;
+    this._gone     = false;
+    this._ended    = false;
+    this._didSetup = false;
 
-    // Sblocca audio WebAudio
-    if ((this.sound as any).context && (this.sound as any).context.state === "suspended") {
-      (this.sound as any).context.resume();
+    const W = this.scale.width;
+    const H = this.scale.height;
+
+    this.add.rectangle(0, 0, W, H, 0x000000)
+      .setOrigin(0).setDepth(0);
+
+    this._video = this.add
+      .video(W / 2, H / 2, "introVideo")
+      .setOrigin(0.5)
+      .setDepth(1)
+      .setLoop(false);
+
+    const setupEl = () => {
+      if (this._didSetup) return;
+      this._didSetup = true;
+
+      const el = (this._video as any).video as HTMLVideoElement | null;
+      if (!el) return;
+
+      el.loop   = false;
+      el.volume = 0.4;
+      el.muted  = false;
+
+      // Scala applicata dentro "playing" — unico momento in cui
+      // Phaser non sovrascrive più le dimensioni
+      el.addEventListener("playing", () => {
+        el.loop = false;
+        const vidW  = el.videoWidth;
+        const vidH  = el.videoHeight;
+        const scale = Math.min(W / vidW, H / vidH);
+        this._video.setDisplaySize(vidW, vidH);
+        this._video.setScale(scale);
+      }, { once: true });
+
+      const onEnded = () => {
+        el.removeEventListener("ended", onEnded);
+        if (this._ended) return;
+        this._ended = true;
+        this._goToIntro();
+      };
+      el.addEventListener("ended", onEnded);
+      this._video.once("complete", () => {
+        if (this._ended) return;
+        this._ended = true;
+        this._goToIntro();
+      });
+
+      if (el.readyState >= 1) {
+        this._video.play(false);
+      } else {
+        el.addEventListener("loadedmetadata", () => {
+          this._video.play(false);
+        }, { once: true });
+      }
+    };
+
+    if ((this._video as any).video) {
+      setupEl();
+    } else {
+      this._video.once("created", setupEl);
     }
 
-    // Sfondo nero
-    this.add.rectangle(0, 0, width, height, 0x000000).setOrigin(0).setDepth(0);
-
-    // Video centrato
-    this._video = this.add.video(width / 2, height / 2, "introVideo")
-      .setOrigin(0.5).setDepth(1);
-
-    // Parte muted (obbligatorio per autoplay browser), poi smuta
-    this._video.play();
-
-    this._video.on("playing", () => {
-      const el = (this._video as any).video as HTMLVideoElement;
-      const vidW = el.videoWidth;
-      const vidH = el.videoHeight;
-
-      // Scala per adattare al canvas con margine
-      if (vidW > 0 && vidH > 0) {
-        const scaleX = width  / vidW;
-        const scaleY = height / vidH;
-        this._video.setScale(Math.min(scaleX, scaleY) * 0.85);
-      }
-
-      // Smuta dopo che il video è partito
-      el.muted = false;
-      el.volume = 1;
-    });
-
-    // Testo skip — appare dopo 1.5 secondi
-    const skipText = this.add.text(width / 2, height - 40, "[ clicca per skippare ]", {
-      fontFamily: "Underdog",
-      fontSize: 22,
-      color: "#aaaaaa",
-      stroke: "#000000",
-      strokeThickness: 3,
-    }).setOrigin(0.5).setDepth(2).setAlpha(0);
+    // Skip
+    const skipText = this.add
+      .text(W - 20, H - 60, "clicca per skippare", {
+        fontFamily: "Underdog",
+        fontSize: 18,
+        color: "#aaaaaa",
+        stroke: "#000000",
+        strokeThickness: 3,
+      })
+      .setOrigin(1, 1)
+      .setDepth(2)
+      .setAlpha(0);
 
     this.time.delayedCall(1500, () => {
       this.tweens.add({ targets: skipText, alpha: 1, duration: 500 });
-      this.input.once("pointerdown", () => {
-        this._goToIntro();
-      });
-    });
-
-    // Video finito → vai a Intro
-    this._video.on("complete", () => {
-      this._goToIntro();
+      this.input.once("pointerdown", () => this._goToIntro());
     });
   }
 
@@ -71,14 +101,28 @@ export default class IntroVideo extends Phaser.Scene {
     if (this._gone) return;
     this._gone = true;
 
-    if (this._video) {
-      this._video.stop();
-      this._video.destroy();
-    }
+    try {
+      const el = (this._video as any).video as HTMLVideoElement | null;
+      if (el) {
+        el.pause();
+        el.removeAttribute("src");
+        el.load();
+      }
+    } catch (_) {}
 
-    const { width, height } = this.game.canvas;
-    const nero = this.add.rectangle(0, 0, width, height, 0x000000, 0)
-      .setOrigin(0).setDepth(10);
+    this._video.stop();
+    this._video.destroy();
+
+    if (this.textures.exists("introVideo")) this.textures.remove("introVideo");
+    if (this.cache.video.exists("introVideo")) this.cache.video.remove("introVideo");
+
+    const W = this.scale.width;
+    const H = this.scale.height;
+
+    const nero = this.add
+      .rectangle(0, 0, W, H, 0x000000, 0)
+      .setOrigin(0)
+      .setDepth(10);
 
     this.tweens.add({
       targets: nero,

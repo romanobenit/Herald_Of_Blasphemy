@@ -9,7 +9,7 @@ export default class Boss03 extends Phaser.Scene {
   private _bossSprite: Phaser.GameObjects.Sprite;
   private _sfondo: Phaser.GameObjects.Image;
 
-  //BUTTONS
+  // BUTTONS
   private _attackButton: Phaser.GameObjects.Image;
   private _techButton: Phaser.GameObjects.Image;
   private _inventoryButton: Phaser.GameObjects.Image;
@@ -29,17 +29,17 @@ export default class Boss03 extends Phaser.Scene {
   private _shieldHUD: Phaser.GameObjects.Text;
   private _talismanHUD: Phaser.GameObjects.Text;
 
-  //HEALTH BARS
+  // HEALTH BARS
   private _playerHealthBar: Phaser.GameObjects.Graphics;
   private _bossHealthBar: Phaser.GameObjects.Graphics;
 
-  //MANA BAR
+  // MANA BAR
   private _playerManaBar: Phaser.GameObjects.Graphics;
 
-  //INTERFACE
+  // INTERFACE
   private _turnBased: Phaser.GameObjects.Text;
 
-  //TEXT GUI
+  // TEXT GUI
   private _textGUI: Phaser.GameObjects.Image;
   private _infoText: Phaser.GameObjects.Text;
   private _Mana: Phaser.GameObjects.Text;
@@ -47,11 +47,11 @@ export default class Boss03 extends Phaser.Scene {
   // FASE LABEL
   private _faseLabel: Phaser.GameObjects.Text;
 
-  //MUSIC
+  // MUSIC
   private _music: Phaser.Sound.BaseSound;
   private _click: Phaser.Sound.BaseSound;
 
-  //Logic
+  // Logic
   private _animation: boolean = false;
   private _fightEnded: boolean = false;
   private _currentTurn: boolean | null = null;
@@ -74,41 +74,43 @@ export default class Boss03 extends Phaser.Scene {
   preload() {}
 
   create() {
-    // RESET
-    this._fightEnded = false;
-    this._animation = false;
-    this._currentTurn = null;
-    this._bossattacTurn = true;
-    this._confirmBox = null;
-    this._confirmText = null;
-    this._yesText = null;
-    this._noText = null;
-    this._turnCount = 0;
-    this._evolutionPhase = 1;
+    // ── RESET ──────────────────────────────────────────────────────────────
+    this._fightEnded        = false;
+    this._animation         = false;
+    this._currentTurn       = null;
+    this._bossattacTurn     = true;
+    this._confirmBox        = null;
+    this._confirmText       = null;
+    this._yesText           = null;
+    this._noText            = null;
+    this._turnCount         = 0;
+    this._evolutionPhase    = 1;
     this._evolutionUnlocked = false;
-    this._evo2Unlocked = false;
-    this._evolutionGlowTween = null;
-    this._screenShaking = false;
-    this._evolutionPopupOpen = false;
+    this._evo2Unlocked      = false;
+    this._evolutionGlowTween= null;
+    this._screenShaking     = false;
+    this._evolutionPopupOpen= false;
 
-    // MUSIC
+    // ── MUSIC ──────────────────────────────────────────────────────────────
     this._click = this.sound.add("click2");
     this._music = this.sound.add("boss3", { loop: true });
     if (this.registry.get("musicOn") === undefined) this.registry.set("musicOn", true);
     if (this.registry.get("musicOn")) this._music.play();
 
-    // PLAYER — fase 1 (mosse boss03 base)
+    // ── PLAYER ─────────────────────────────────────────────────────────────
     this._player = new Player(
       { scene: this, x: 100, y: 100, key: "player" },
       "Death Deluxe", 600, 600, 10, 10,
       [
-        { nome: "Holy prayer",     danno: 50,  costo: 1 },
-        { nome: "Gabriel's Smite", danno: 90,  costo: 2 },
-        { nome: "Judas's Kiss",    danno: 150, costo: 3 },
+        { nome: "punch",        danno: 30,  costo: 0 },
+        { nome: "smite",        danno: 60,  costo: 1 },
+        { nome: "large slayer", danno: 140, costo: 2 },
+        
       ]
     );
 
     this._playerSprite = this.add.sprite(300, 550, "player", 0).setDepth(1).setScale(5);
+
     this.anims.create({
       key: "idle",
       frames: this.anims.generateFrameNumbers("player", { start: 0, end: 1 }),
@@ -125,16 +127,18 @@ export default class Boss03 extends Phaser.Scene {
       frameRate: 1, repeat: -1,
     });
 
-    // INTERFACE
-    this._turnBased = this.add.text(1280 / 2, 400, "YOUR TURN", {
-      fontFamily: "Underdog", fontSize: 70, color: "#ffffff",
-      stroke: "#000000", strokeThickness: 6,
-    }).setOrigin(0.5).setDepth(1002).setScale(1).setVisible(false);
+    // ── TURN TEXT ──────────────────────────────────────────────────────────
+    this._turnBased = this.add
+      .text(1280 / 2, 400, "YOUR TURN", {
+        fontFamily: "Underdog", fontSize: 70, color: "#ffffff",
+        stroke: "#000000", strokeThickness: 6,
+      })
+      .setOrigin(0.5).setDepth(1002).setScale(1).setVisible(false);
 
-    this._player.turn = true;
+    this._player.turn      = true;
     this._player._vittoria = false;
 
-    // BOSS
+    // ── BOSS ───────────────────────────────────────────────────────────────
     this._boss = new Player(
       { scene: this, x: 100, y: 100, key: "abyssman" },
       "abyssman", 600, 600, 100, 100,
@@ -142,26 +146,34 @@ export default class Boss03 extends Phaser.Scene {
     );
 
     this._bossSprite = this.add.sprite(900, 210, "abyssman", 0).setScale(3).setDepth(1);
+
     this.anims.create({
       key: "idleC3",
       frames: this.anims.generateFrameNumbers("abyssman", { start: 0, end: 3 }),
       frameRate: 4, repeat: -1,
     });
 
-    // SFONDO
+    // ── SFONDO ─────────────────────────────────────────────────────────────
     this._sfondo = this.add.image(0, 0, "sfondoBoss03").setOrigin(0, 0).setDepth(0).setScale(5);
-    const _sfondoNero = this.add.image(0, 0, "sfondoNero").setOrigin(0, 0).setAlpha(1).setDepth(1002);
+
+    const _sfondoNero = this.add
+      .image(0, 0, "sfondoNero")
+      .setOrigin(0, 0).setAlpha(1).setDepth(1002);
+
     this.add.tween({
-      targets: _sfondoNero, alpha: 0, duration: 1000, ease: "Power2",
+      targets: _sfondoNero,
+      alpha: 0,
+      duration: 1000,
+      ease: "Power2",
       onComplete: () => {
         this._playerSprite.play("idle");
         this._bossSprite.play("idleC3");
       },
     });
 
-    // HEALTH BARS
-    this.add.text(550, 470, "TU",       { fontFamily: "Underdog", fontSize: 40, color: "#770000" }).setDepth(1000);
-    this.add.text(20,  10,  "Padre Maurice", { fontFamily: "Underdog", fontSize: 40, color: "#770000" }).setDepth(1000);
+    // ── HEALTH BARS ────────────────────────────────────────────────────────
+    this.add.text(550, 470, "TU",           { fontFamily: "Underdog", fontSize: 40, color: "#770000" }).setDepth(1000);
+    this.add.text(20,  10,  "Padre Maurice",{ fontFamily: "Underdog", fontSize: 40, color: "#770000" }).setDepth(1000);
 
     this._playerHealthBar = this.add.graphics();
     this._drawPlayerHealthBar();
@@ -172,13 +184,13 @@ export default class Boss03 extends Phaser.Scene {
       .lineStyle(4, 0x000000, 1).strokeRoundedRect(20, 50, 600, 20, 10)
       .setDepth(1000);
 
-    // FASE LABEL
+    // ── FASE LABEL ─────────────────────────────────────────────────────────
     this._faseLabel = this.add.text(550, 532, "[ FASE 1 ]", {
       fontFamily: "Underdog", fontSize: 16, color: "#ffaa00",
       stroke: "#000000", strokeThickness: 3,
     }).setDepth(1001);
 
-    // MANA BAR
+    // ── MANA BAR ───────────────────────────────────────────────────────────
     this.add.text(550, 556, "MANA", {
       fontFamily: "Underdog", fontSize: 18, color: "#4488ff",
     }).setDepth(1000);
@@ -186,29 +198,21 @@ export default class Boss03 extends Phaser.Scene {
     this._playerManaBar = this.add.graphics();
     this._drawManaBar();
 
-    // TEXT GUI
-    this._textGUI = this.add.image(320, 150, "GUI");
-    this._infoText = this.add.text(320, 130, " ", {
-      fontFamily: "Underdog", fontSize: 20, color: "#ffffff",
-    }).setOrigin(0.5).setDepth(1001);
+    // ── TEXT GUI ───────────────────────────────────────────────────────────
+    this._textGUI  = this.add.image(320, 150, "GUI");
+    this._infoText = this.add
+      .text(320, 130, " ", { fontFamily: "Underdog", fontSize: 20, color: "#ffffff" })
+      .setOrigin(0.5).setDepth(1001);
 
     this._Mana = this.add
       .text(-9999, -9999, this._player.Mana.toString(), { fontSize: "1px" })
       .setAlpha(0).setDepth(-1);
 
-    // HUD SCUDO
-    this._shieldHUD = this.add.text(610, 510, "🛡 SHIELD READY", {
-      fontFamily: "Underdog", fontSize: 18, color: "#44aaff",
-      stroke: "#001133", strokeThickness: 4,
-    }).setDepth(1001).setVisible(false);
-
-    // HUD TALISMANO
-    this._talismanHUD = this.add.text(610, 510, "✦ TALISMANO ATTIVO", {
-      fontFamily: "Underdog", fontSize: 18, color: "#ffdd00",
-      stroke: "#332200", strokeThickness: 4,
-    }).setDepth(1001).setVisible(false);
-
-    // BUTTONS
+    // ── HUD SCUDO ──────────────────────────────────────────────────────────
+   
+    // ── HUD TALISMANO ──────────────────────────────────────────────────────
+    
+    // ── BUTTONS ────────────────────────────────────────────────────────────
     this._techButton      = this.add.image(1280 - 600,       800 - 70,  "button").setInteractive();
     this._inventoryButton = this.add.image(1280 - 600 + 330, 800 - 157, "button").setInteractive();
     this._attackButton    = this.add.image(1280 - 600,       800 - 157, "button").setInteractive();
@@ -216,7 +220,9 @@ export default class Boss03 extends Phaser.Scene {
 
     // ATTACK
     this._attackTextLabel = this.add
-      .text(1280 - 600, 800 - 157, "ATTACK", { fontFamily: "Underdog", fontSize: 40, color: "#ffffff" })
+      .text(1280 - 600, 800 - 157, "ATTACK", {
+        fontFamily: "Underdog", fontSize: 40, color: "#ffffff",
+      })
       .setOrigin(0.5).setInteractive()
       .on("pointerover", () => { this.buttonTwiin(this._attackTextLabel, 1.1); })
       .on("pointerout",  () => { this.buttonTwiin(this._attackTextLabel, 1); })
@@ -232,7 +238,9 @@ export default class Boss03 extends Phaser.Scene {
 
     // MOVESET
     this._techTextLabel = this.add
-      .text(1280 - 600, 800 - 70, "MOVESET", { fontFamily: "Underdog", fontSize: 40, color: "#ffffff" })
+      .text(1280 - 600, 800 - 70, "MOVESET", {
+        fontFamily: "Underdog", fontSize: 40, color: "#ffffff",
+      })
       .setOrigin(0.5).setInteractive()
       .on("pointerover", () => { this.buttonTwiin(this._techTextLabel, 1.2); })
       .on("pointerout",  () => { this.buttonTwiin(this._techTextLabel, 1); })
@@ -244,7 +252,9 @@ export default class Boss03 extends Phaser.Scene {
 
     // INVENTORY
     this._inventoryTextLabel = this.add
-      .text(1280 - 600 + 330, 800 - 157, "INVENTORY", { fontFamily: "Underdog", fontSize: 40, color: "#ffffff" })
+      .text(1280 - 600 + 330, 800 - 157, "INVENTORY", {
+        fontFamily: "Underdog", fontSize: 40, color: "#ffffff",
+      })
       .setOrigin(0.5).setInteractive()
       .on("pointerover", () => { this.buttonTwiin(this._inventoryTextLabel, 1.2); })
       .on("pointerout",  () => { this.buttonTwiin(this._inventoryTextLabel, 1); })
@@ -254,9 +264,11 @@ export default class Boss03 extends Phaser.Scene {
         this._drawManaBar();
       });
 
-    // EVOLUTION BUTTON
+    // EVOLUTION
     this._evolutionTextLabel = this.add
-      .text(1280 - 600 + 330, 800 - 70, "EVOLUTION", { fontFamily: "Underdog", fontSize: 33, color: "#555555" })
+      .text(1280 - 600 + 330, 800 - 70, "EVOLUTION", {
+        fontFamily: "Underdog", fontSize: 33, color: "#555555",
+      })
       .setOrigin(0.5)
       .on("pointerover", () => {
         if (this._evolutionUnlocked || this._evo2Unlocked) this.buttonTwiin(this._evolutionTextLabel, 1.2);
@@ -276,7 +288,8 @@ export default class Boss03 extends Phaser.Scene {
 
     this._exitButton = this.add
       .rectangle(1280 - margin - size / 2, margin + size / 2, size, size, 0x000000, 0.6)
-      .setStrokeStyle(2, 0xffffff).setDepth(1001)
+      .setStrokeStyle(2, 0xffffff)
+      .setDepth(1001)
       .setInteractive({ useHandCursor: true });
 
     this._exitTextLabel = this.add
@@ -301,27 +314,30 @@ export default class Boss03 extends Phaser.Scene {
     this._updateScreenShake();
 
     // HUD scudo
-    if (this._player.shieldUsed) {
-      this._shieldHUD.setText("🛡 SHIELD USED").setColor("#555555").setVisible(true);
-    } else if (this._player.shieldActive) {
-      this._shieldHUD.setText("🛡 SHIELD READY").setColor("#44aaff").setVisible(true);
-    } else {
-      this._shieldHUD.setVisible(false);
-    }
+   
 
     // HUD talismano
-    this._talismanHUD.setVisible(this._player.talismanActive);
+    
 
+    // ── FINE COMBATTIMENTO ────────────────────────────────────────────────
     if (this._boss.Vita <= 0 || this._player.Vita <= 0) {
       this._fightEnded = true;
       this._turnBased.setVisible(false);
+      this.disablePlayerControls();
+
+      if (this._boss.Vita <= 0) {
+        // Boss finale sconfitto → filmato finale
+        this._onBossDefeated();
+      }
+      // Se muore il player, Player.update() gestisce già il game over verso Intro
       return;
     }
 
+    // ── CAMBIO TURNO ─────────────────────────────────────────────────────
     if (this._player.turn !== this._currentTurn) {
       this._bossattacTurn = true;
-      this._currentTurn = this._player.turn;
-      this._animation = true;
+      this._currentTurn   = this._player.turn;
+      this._animation     = true;
 
       if (this._player.turn) {
         this._turnCount++;
@@ -337,6 +353,32 @@ export default class Boss03 extends Phaser.Scene {
         });
       }
     }
+  }
+
+  // ─── BOSS DEFEATED → FILMATO FINALE ─────────────────────────────────────
+  private _onBossDefeated(): void {
+    // Aspetta che Player.update() mostri "ENEMY SLAYED" ecc.
+    // Player.update usa un delay interno; aspettiamo abbastanza.
+    this.time.delayedCall(3000, () => {
+      if (this._music && this._music.isPlaying) this._music.stop();
+
+      // Fade al nero
+      const fadeOut = this.add
+        .rectangle(0, 0, 1280, 800, 0x000000, 0)
+        .setOrigin(0)
+        .setDepth(5000);
+
+      this.tweens.add({
+        targets: fadeOut,
+        fillAlpha: 1,
+        duration: 1000,
+        ease: "Power2",
+        onComplete: () => {
+          this.scene.stop("Boss03");
+          this.scene.start("OutroVideo");
+        },
+      });
+    });
   }
 
   // ─── PLAYER HEALTH BAR — colore dinamico ────────────────────────────────
@@ -442,9 +484,10 @@ export default class Boss03 extends Phaser.Scene {
   }
 
   // ─── POPUP EVOLUZIONE ───────────────────────────────────────────────────
-private _showEvolutionPopup(): void {
+  private _showEvolutionPopup(): void {
     if (this._evolutionPopupOpen) return;
     this._evolutionPopupOpen = true;
+
     const isEvo1 = this._evolutionPhase === 1 && this._evolutionUnlocked;
     const isEvo2 = this._evolutionPhase === 2 && this._evo2Unlocked;
     if (!isEvo1 && !isEvo2) return;
@@ -452,7 +495,8 @@ private _showEvolutionPopup(): void {
     const cost  = isEvo1 ? 3 : 5;
     const label = isEvo1 ? "PRIMA EVOLUZIONE" : "SECONDA EVOLUZIONE";
 
-    const overlay = this.add.rectangle(1280 / 2, 800 / 2, 600, 340, 0x000000, 0.9)
+    const overlay = this.add
+      .rectangle(1280 / 2, 800 / 2, 600, 340, 0x000000, 0.9)
       .setDepth(3000).setStrokeStyle(3, 0xffdd00);
 
     const title = this.add.text(1280 / 2, 800 / 2 - 110, " EVOLUZIONE ", {
@@ -465,10 +509,14 @@ private _showEvolutionPopup(): void {
       stroke: "#000000", strokeThickness: 3,
     }).setOrigin(0.5).setDepth(3001);
 
-    const question = this.add.text(1280 / 2, 800 / 2, `Vuoi evolverti al\ncosto di ${cost} di mana?`, {
-      fontFamily: "Underdog", fontSize: 28, color: "#ffffff",
-      stroke: "#000000", strokeThickness: 3, align: "center",
-    }).setOrigin(0.5).setDepth(3001);
+    const question = this.add.text(
+      1280 / 2, 800 / 2,
+      `Vuoi evolverti al\ncosto di ${cost} di mana?`,
+      {
+        fontFamily: "Underdog", fontSize: 28, color: "#ffffff",
+        stroke: "#000000", strokeThickness: 3, align: "center",
+      }
+    ).setOrigin(0.5).setDepth(3001);
 
     const hasMana  = this._player.Mana >= cost;
     const yesColor = hasMana ? "#00ff00" : "#888888";
@@ -482,53 +530,65 @@ private _showEvolutionPopup(): void {
       yesBtn.setInteractive().on("pointerdown", () => {
         this._player.Mana -= cost;
         this._drawManaBar();
-        destroy();
+        destroyPopup();
         this._doEvolution(isEvo1 ? 2 : 3);
       });
     }
 
-    const noBtn = this.add.text(1280 / 2 + 110, 800 / 2 + 110, "[ NO ]", {
-      fontFamily: "Underdog", fontSize: 38, color: "#ff4444",
-      stroke: "#000000", strokeThickness: 4,
-    }).setOrigin(0.5).setDepth(3001).setInteractive()
-      .on("pointerdown", () => { destroy(); });
+    const noBtn = this.add
+      .text(1280 / 2 + 110, 800 / 2 + 110, "[ NO ]", {
+        fontFamily: "Underdog", fontSize: 38, color: "#ff4444",
+        stroke: "#000000", strokeThickness: 4,
+      })
+      .setOrigin(0.5).setDepth(3001).setInteractive()
+      .on("pointerdown", () => { destroyPopup(); });
 
-    const destroy = () => {
-    this._evolutionPopupOpen = false;  // ← aggiungi questa
-    overlay.destroy(); title.destroy(); subTitle.destroy();
-    question.destroy(); yesBtn.destroy(); noBtn.destroy();
-};
+    const destroyPopup = () => {
+      this._evolutionPopupOpen = false;
+      overlay.destroy();
+      title.destroy();
+      subTitle.destroy();
+      question.destroy();
+      yesBtn.destroy();
+      noBtn.destroy();
+    };
   }
 
   // ─── ESEGUI EVOLUZIONE ──────────────────────────────────────────────────
   private _doEvolution(newPhase: number): void {
     this.disablePlayerControls();
 
-    const flash = this.add.rectangle(0, 0, 1280, 800, 0xffffff, 0).setOrigin(0).setDepth(4000);
+    const flash = this.add
+      .rectangle(0, 0, 1280, 800, 0xffffff, 0)
+      .setOrigin(0).setDepth(4000);
 
     const rays: Phaser.GameObjects.Graphics[] = [];
     for (let i = 0; i < 12; i++) {
-      const ray = this.add.graphics().setDepth(3999);
+      const ray   = this.add.graphics().setDepth(3999);
       const angle = (i / 12) * Math.PI * 2;
       ray.fillStyle(0xffdd00, 0.6);
       ray.fillTriangle(
         300, 550,
-        300 + Math.cos(angle) * 200, 550 + Math.sin(angle) * 200,
+        300 + Math.cos(angle) * 200,        550 + Math.sin(angle) * 200,
         300 + Math.cos(angle + 0.15) * 200, 550 + Math.sin(angle + 0.15) * 200
       );
       rays.push(ray);
     }
 
-    const evoText = this.add.text(1280 / 2, 300, "✦ EVOLUZIONE! ✦", {
-      fontFamily: "Underdog", fontSize: 60, color: "#ffdd00",
-      stroke: "#000000", strokeThickness: 8,
-    }).setOrigin(0.5).setDepth(4001).setScale(0);
+    const evoText = this.add
+      .text(1280 / 2, 300, " EVOLUZIONE! ", {
+        fontFamily: "Underdog", fontSize: 60, color: "#ffdd00",
+        stroke: "#000000", strokeThickness: 8,
+      })
+      .setOrigin(0.5).setDepth(4001).setScale(0);
 
-    const faseStr = newPhase === 2 ? "SECONDA FASE" : "TERZA FASE";
-    const faseText = this.add.text(1280 / 2, 400, faseStr, {
-      fontFamily: "Underdog", fontSize: 40, color: "#ffffff",
-      stroke: "#000000", strokeThickness: 6,
-    }).setOrigin(0.5).setDepth(4001).setAlpha(0);
+    const faseStr  = newPhase === 2 ? "SECONDA FASE" : "TERZA FASE";
+    const faseText = this.add
+      .text(1280 / 2, 400, faseStr, {
+        fontFamily: "Underdog", fontSize: 40, color: "#ffffff",
+        stroke: "#000000", strokeThickness: 6,
+      })
+      .setOrigin(0.5).setDepth(4001).setAlpha(0);
 
     this.add.tween({ targets: this._playerSprite, angle: 360, duration: 800, ease: "Power2" });
 
@@ -561,7 +621,7 @@ private _showEvolutionPopup(): void {
                       }
                       this._evolutionTextLabel.setAlpha(1).setColor("#555555").removeInteractive();
                       this._evolutionUnlocked = false;
-                      this._evo2Unlocked = false;
+                      this._evo2Unlocked      = false;
 
                       this.enablePlayerControls();
                     });
@@ -594,10 +654,10 @@ private _showEvolutionPopup(): void {
         { nome: "Judas's Kiss",      danno: 150, costo: 3 },
         { nome: "prayer",            danno: 80,  costo: 1 },
         { nome: "divine attack",     danno: 220, costo: 3 },
-        { nome: "malevolent shrine", danno: 500, costo: 5 },
-        { nome: "God's Touch",       danno: 390, costo: 5 },
+        { nome: "mita destroyer", danno: 500, costo: 5 },
+        
       ];
-      this._player.mossaSelected = this._player.mosse[0];
+      this._player.mossaSelected  = this._player.mosse[0];
       this._player.talismanActive = false;
     }
   }
@@ -611,34 +671,44 @@ private _showEvolutionPopup(): void {
   private showExitConfirm(): void {
     if (this._confirmBox) return;
 
-    this._confirmBox = this.add.rectangle(1280 / 2, 800 / 2, 500, 300, 0x000000, 0.8).setDepth(2000);
-    this._confirmText = this.add.text(1280 / 2, 800 / 2 - 60, "TORNARE AL MENU?", {
-      fontFamily: "Underdog", fontSize: 40, color: "#ffffff",
-    }).setOrigin(0.5).setDepth(2001);
+    this._confirmBox = this.add
+      .rectangle(1280 / 2, 800 / 2, 500, 300, 0x000000, 0.8)
+      .setDepth(2000);
 
-    this._yesText = this.add.text(1280 / 2 - 100, 800 / 2 + 60, "SI", {
-      fontFamily: "Underdog", fontSize: 40, color: "#00ff00",
-    }).setOrigin(0.5).setDepth(2001).setInteractive()
+    this._confirmText = this.add
+      .text(1280 / 2, 800 / 2 - 60, "TORNARE AL MENU?", {
+        fontFamily: "Underdog", fontSize: 40, color: "#ffffff",
+      })
+      .setOrigin(0.5).setDepth(2001);
+
+    this._yesText = this.add
+      .text(1280 / 2 - 100, 800 / 2 + 60, "SI", {
+        fontFamily: "Underdog", fontSize: 40, color: "#00ff00",
+      })
+      .setOrigin(0.5).setDepth(2001).setInteractive()
       .on("pointerdown", () => {
         this._music.stop();
         this.scene.stop("Boss03");
         this.scene.start("Intro");
       });
 
-    this._noText = this.add.text(1280 / 2 + 100, 800 / 2 + 60, "NO", {
-      fontFamily: "Underdog", fontSize: 40, color: "#ff0000",
-    }).setOrigin(0.5).setDepth(2001).setInteractive()
+    this._noText = this.add
+      .text(1280 / 2 + 100, 800 / 2 + 60, "NO", {
+        fontFamily: "Underdog", fontSize: 40, color: "#ff0000",
+      })
+      .setOrigin(0.5).setDepth(2001).setInteractive()
       .on("pointerdown", () => { this.closeExitConfirm(); });
   }
 
   private closeExitConfirm(): void {
     if (!this._confirmBox) return;
-    this._confirmBox.destroy(); this._confirmText.destroy();
-    this._yesText.destroy();   this._noText.destroy();
-    this._confirmBox = null;   this._confirmText = null;
-    this._yesText = null;      this._noText = null;
+    this._confirmBox.destroy();  this._confirmText.destroy();
+    this._yesText.destroy();     this._noText.destroy();
+    this._confirmBox  = null;    this._confirmText = null;
+    this._yesText     = null;    this._noText      = null;
   }
 
+  // ─── UTILS ───────────────────────────────────────────────────────────────
   sizeUp(text: Phaser.GameObjects.Text, t: string, onComplete?: () => void): void {
     text.setScale(0); text.setText(t); text.setVisible(true);
     this.add.tween({

@@ -502,7 +502,7 @@ export default class Player extends Phaser.GameObjects.Sprite implements IPlayer
                 // Già attivo questo turno
                 itemTalisman.setAlpha(0.5).setTint(0xffdd00);
                 itemTalisman.setInteractive()
-                    .on("pointerover", () => { descrizione.setAlpha(1).setText("Talismano: ATTIVO!"); descrizione.x = 880; })
+                   
                     .on("pointerout",  () => { descrizione.setAlpha(0); });
             } else if (!hasMana) {
                 // Mana insufficiente

@@ -14,7 +14,7 @@ import Boss01 from "./scenes/Boss01";
 import Boss02 from "./scenes/Boss02";
 import Boss03 from "./scenes/Boss03";
 import IntroVideo from "./scenes/IntroVideo";
-
+import OutroVideo from "./scenes/OutroVideo";
 //il listener per l'evento load della pagina
 //questo evento viene lanciato quando la pagina è stata caricata
 //e tutti gli elementi della pagina sono disponibili
@@ -44,7 +44,8 @@ window.addEventListener("load", () => {
       Boss03,
       BossLead,
       GameOver,
-      IntroVideo
+      IntroVideo,
+      OutroVideo
     ],
     physics: {
       default: "arcade",
