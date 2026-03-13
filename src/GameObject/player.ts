@@ -327,9 +327,19 @@ export default class Player extends Phaser.GameObjects.Sprite implements IPlayer
                 .setFontFamily("Underdog").setFontSize(40)
                 .setInteractive().setWordWrapWidth(700);
 
-            const infoText = this.scene.add
-                .text(1280 / 2, position + 40, this.mosse[i].danno.toString() + " / " + this.mosse[i].costo.toString())
+            const infoTextDmg = this.scene.add
+                .text(1280 / 2 - 20, position + 40, this.mosse[i].danno.toString())
+                .setDepth(2001).setOrigin(1, 0.5).setColor("#ff4444")
+                .setFontFamily("Underdog").setFontSize(20).setVisible(false);
+
+            const infoTextSep = this.scene.add
+                .text(1280 / 2, position + 40, "/")
                 .setDepth(2001).setOrigin(0.5).setColor("#ffffff")
+                .setFontFamily("Underdog").setFontSize(20).setVisible(false);
+
+            const infoTextMana = this.scene.add
+                .text(1280 / 2 + 20, position + 40, this.mosse[i].costo.toString())
+                .setDepth(2001).setOrigin(0, 0.5).setColor("#4488ff")
                 .setFontFamily("Underdog").setFontSize(20).setVisible(false);
 
             Moves.on("pointerdown", () => {
@@ -337,10 +347,22 @@ export default class Player extends Phaser.GameObjects.Sprite implements IPlayer
                 container.destroy();
                 console.log(this.mossaSelected.nome);
             })
-            .on("pointerover", () => { this.onTwiin(Moves, 1.1); infoText.setVisible(true); })
-            .on("pointerout",  () => { this.onTwiin(Moves, 1);   infoText.setVisible(false); });
+            .on("pointerover", () => { 
+                this.onTwiin(Moves, 1.1); 
+                infoTextDmg.setVisible(true); 
+                infoTextSep.setVisible(true); 
+                infoTextMana.setVisible(true); 
+            })
+            .on("pointerout", () => { 
+                this.onTwiin(Moves, 1);   
+                infoTextDmg.setVisible(false); 
+                infoTextSep.setVisible(false); 
+                infoTextMana.setVisible(false); 
+            });
 
-            container.add(infoText);
+            container.add(infoTextDmg);
+            container.add(infoTextSep);
+            container.add(infoTextMana);
             container.add(Moves);
             position += 75;
         }
@@ -684,14 +706,14 @@ export default class Player extends Phaser.GameObjects.Sprite implements IPlayer
             const weaponBody1 = <Phaser.Physics.Arcade.Body>_weapon1.body;
             weaponBody1
                 .setAngularVelocity(700)
-                .setVelocityX(Phaser.Math.RND.between(-500, 500))
+                .setVelocityX(Phaser.Math.RND.between(-300, -50))
                 .setVelocityY(Phaser.Math.RND.between(-500, 500))
                 .setBounce(1).setCollideWorldBounds(true)
                 .setBoundsRectangle(new Phaser.Geom.Rectangle(360, 120, _border.width * 4, _border.height * 4));
             const weaponBody2 = <Phaser.Physics.Arcade.Body>_weapon2.body;
             weaponBody2
                 .setAngularVelocity(700)
-                .setVelocityX(Phaser.Math.RND.between(-500, 500))
+                .setVelocityX(Phaser.Math.RND.between(50, 300))
                 .setVelocityY(Phaser.Math.RND.between(-500, 500))
                 .setBounce(1).setCollideWorldBounds(true)
                 .setBoundsRectangle(new Phaser.Geom.Rectangle(360, 120, _border.width * 4, _border.height * 4));

@@ -38,9 +38,6 @@ export default class Boss02 extends Phaser.Scene {
   //INTERFACE
   private _turnBased: Phaser.GameObjects.Text;
 
-  //TEXT GUI
-  private _textGUI: Phaser.GameObjects.Image;
-  private _infoText: Phaser.GameObjects.Text;
   private _Mana: Phaser.GameObjects.Text;
 
   // FASE LABEL
@@ -64,6 +61,14 @@ export default class Boss02 extends Phaser.Scene {
   private _evo2Unlocked: boolean = false;
   private _evolutionGlowTween: Phaser.Tweens.Tween | null = null;
   private _screenShaking: boolean = false;
+
+  // ─── COSTANTI BARRA MANA A TACCHETTE ────────────────────────────────────
+  private readonly MANA_SLOTS    = 10;
+  private readonly MANA_BAR_X   = 550;
+  private readonly MANA_BAR_Y   = 578;
+  private readonly MANA_BAR_W   = 600;
+  private readonly MANA_BAR_H   = 20;
+  private readonly MANA_SLOT_GAP = 4;
 
   constructor() {
     super({ key: "Boss02" });
@@ -101,10 +106,9 @@ export default class Boss02 extends Phaser.Scene {
       { scene: this, x: 100, y: 100, key: "player" },
       "Death Deluxe", 600, 600, 10, 10,
       [
-        { nome: "punch",        danno: 30,  costo: 0 },
-        { nome: "smite",        danno: 70,  costo: 1 },
-        { nome: "large slayer", danno: 140, costo: 2 },
-        
+        { nome: "punch",        danno: 30,  costo: 1 },
+        { nome: "smite",        danno: 70,  costo: 2 },
+        { nome: "large slayer", danno: 140, costo: 3 },
       ]
     );
 
@@ -160,17 +164,14 @@ export default class Boss02 extends Phaser.Scene {
     });
 
     // HEALTH BARS
-    this.add.text(550, 470, "TU",      { fontFamily: "Underdog", fontSize: 40, color: "#770000" }).setDepth(1000);
-    this.add.text(20,  10,  "Melemia", { fontFamily: "Underdog", fontSize: 40, color: "#770000" }).setDepth(1000);
+    this.add.text(550, 470, "TU",      { fontFamily: "Underdog", fontSize: 40, color: "rgba(2, 142, 51, 1)" }).setDepth(1000);
+    this.add.text(20,  10,  "Melemia", { fontFamily: "Underdog", fontSize: 40, color: "#c6b503ff" }).setDepth(1000);
 
     this._playerHealthBar = this.add.graphics();
     this._drawPlayerHealthBar();
 
     this._bossHealthBar = this.add.graphics();
-    this._bossHealthBar
-      .fillStyle(0x770000, 1).fillRoundedRect(20, 50, 600, 20, 10)
-      .lineStyle(4, 0x000000, 1).strokeRoundedRect(20, 50, 600, 20, 10)
-      .setDepth(1000);
+    this._drawBossHealthBar();
 
     // FASE LABEL
     this._faseLabel = this.add.text(550, 532, "[ FASE 1 ]", {
@@ -178,7 +179,7 @@ export default class Boss02 extends Phaser.Scene {
       stroke: "#000000", strokeThickness: 3,
     }).setDepth(1001);
 
-    // MANA BAR
+    // MANA BAR — label + grafica a tacchette
     this.add.text(550, 556, "MANA", {
       fontFamily: "Underdog", fontSize: 18, color: "#4488ff",
     }).setDepth(1000);
@@ -186,17 +187,10 @@ export default class Boss02 extends Phaser.Scene {
     this._playerManaBar = this.add.graphics();
     this._drawManaBar();
 
-    // TEXT GUI
-    this._textGUI = this.add.image(320, 150, "GUI");
-    this._infoText = this.add.text(320, 130, " ", {
-      fontFamily: "Underdog", fontSize: 20, color: "#ffffff",
-    }).setOrigin(0.5).setDepth(1001);
-
     this._Mana = this.add
       .text(-9999, -9999, this._player.Mana.toString(), { fontSize: "1px" })
       .setAlpha(0).setDepth(-1);
 
-    
     // BUTTONS
     this._techButton      = this.add.image(1280 - 600,       800 - 70,  "button").setInteractive();
     this._inventoryButton = this.add.image(1280 - 600 + 330, 800 - 157, "button").setInteractive();
@@ -227,8 +221,7 @@ export default class Boss02 extends Phaser.Scene {
       .on("pointerout",  () => { this.buttonTwiin(this._techTextLabel, 1); })
       .on("pointerdown", () => {
         this._click.play();
-        const move = this._player.tech();
-        this.info(move.nome, move.danno);
+        this._player.tech();
       });
 
     // INVENTORY
@@ -287,9 +280,8 @@ export default class Boss02 extends Phaser.Scene {
     this._player.update(time, delta, this._boss, this._bossSprite, "melemia", 0, "Boss03", 1000);
     this._drawManaBar();
     this._drawPlayerHealthBar();
+    this._drawBossHealthBar();
     this._updateScreenShake();
-
-   
 
     if (this._boss.Vita <= 0 || this._player.Vita <= 0) {
       this._fightEnded = true;
@@ -370,23 +362,74 @@ export default class Boss02 extends Phaser.Scene {
     });
   }
 
-  // ─── MANA BAR ───────────────────────────────────────────────────────────
+  // ─── MANA BAR A TACCHETTE ───────────────────────────────────────────────
+  //
+  // Stessa logica di Boss01: 10 quadretti separati.
+  // Blu = mana disponibile, grigio scuro = mana consumato.
+  //
   private _drawManaBar(): void {
     if (!this._playerManaBar || !this._player) return;
-    const maxWidth  = 600;
-    const ratio     = Math.max(0, Math.min(1, this._player.Mana / this._player.maxMana));
-    const fillWidth = maxWidth * ratio;
+
+    const slots  = this.MANA_SLOTS;
+    const gap    = this.MANA_SLOT_GAP;
+    const totalW = this.MANA_BAR_W;
+    const h      = this.MANA_BAR_H;
+    const startX = this.MANA_BAR_X;
+    const startY = this.MANA_BAR_Y;
+    const radius = 4;
+
+    // Larghezza di ogni tacchetta: spazio totale meno i gap tra le slot, diviso per il numero di slot
+    const slotW = (totalW - gap * (slots - 1)) / slots;
+
+    const currentMana = Math.max(0, Math.min(this._player.maxMana, this._player.Mana));
 
     this._playerManaBar.clear();
-    this._playerManaBar
-      .fillStyle(0x111133, 1).fillRoundedRect(550, 578, maxWidth, 20, 10)
-      .lineStyle(4, 0x000000, 1).strokeRoundedRect(550, 578, maxWidth, 20, 10);
 
-    if (fillWidth > 0) {
-      this._playerManaBar.fillStyle(0x0055ff, 1).fillRoundedRect(550, 578, fillWidth, 20, 10);
+    for (let i = 0; i < slots; i++) {
+      const slotX    = startX + i * (slotW + gap);
+      const isFilled = i < currentMana;
+
+      // Sfondo scuro per tutte le tacchette
+      this._playerManaBar.fillStyle(0x111133, 1);
+      this._playerManaBar.fillRoundedRect(slotX, startY, slotW, h, radius);
+
+      // Riempimento blu solo per le tacchette con mana
+      if (isFilled) {
+        this._playerManaBar.fillStyle(0x0055ff, 1);
+        this._playerManaBar.fillRoundedRect(slotX, startY, slotW, h, radius);
+      }
+
+      // Bordo nero per separare visivamente ogni tacchetta
+      this._playerManaBar.lineStyle(2, 0x000000, 1);
+      this._playerManaBar.strokeRoundedRect(slotX, startY, slotW, h, radius);
     }
+
     this._playerManaBar.setDepth(1000);
   }
+
+
+
+
+  private _drawBossHealthBar(): void {
+  if (!this._bossHealthBar || !this._boss) return;
+  const maxWidth = 600;
+  const ratio    = Math.max(0, Math.min(1, this._boss.Vita / this._boss.maxVita));
+  const fillW    = maxWidth * ratio;
+
+  this._bossHealthBar.clear();
+  // sfondo scuro sempre pieno
+  this._bossHealthBar.fillStyle(0x220000, 1).fillRoundedRect(20, 50, maxWidth, 20, 10);
+  // barra rossa proporzionale alla vita rimasta
+  if (fillW > 0) {
+    this._bossHealthBar.fillStyle(0x770000, 1).fillRoundedRect(20, 50, fillW, 20, 10);
+  }
+  this._bossHealthBar
+    .lineStyle(4, 0x000000, 1)
+    .strokeRoundedRect(20, 50, maxWidth, 20, 10)
+    .setDepth(1000);
+}
+
+
 
   // ─── INVENTORY con sblocchi progressivi ─────────────────────────────────
   private _callInventory(): void {
@@ -421,7 +464,7 @@ export default class Boss02 extends Phaser.Scene {
   }
 
   // ─── POPUP EVOLUZIONE ───────────────────────────────────────────────────
-private _showEvolutionPopup(): void {
+  private _showEvolutionPopup(): void {
     if (this._evolutionPopupOpen) return;
     this._evolutionPopupOpen = true;
     const isEvo1 = this._evolutionPhase === 1 && this._evolutionUnlocked;
@@ -473,10 +516,10 @@ private _showEvolutionPopup(): void {
       .on("pointerdown", () => { destroy(); });
 
     const destroy = () => {
-    this._evolutionPopupOpen = false;  // ← aggiungi questa
-    overlay.destroy(); title.destroy(); subTitle.destroy();
-    question.destroy(); yesBtn.destroy(); noBtn.destroy();
-};
+      this._evolutionPopupOpen = false;
+      overlay.destroy(); title.destroy(); subTitle.destroy();
+      question.destroy(); yesBtn.destroy(); noBtn.destroy();
+    };
   }
 
   // ─── ESEGUI EVOLUZIONE ──────────────────────────────────────────────────
@@ -559,20 +602,20 @@ private _showEvolutionPopup(): void {
   private _applyEvolutionPhase(phase: number): void {
     if (phase === 2) {
       this._player.mosse = [
-        { nome: "punch",         danno: 30,  costo: 0 },
-        { nome: "smite",         danno: 70,  costo: 1 },
-        { nome: "large slayer",  danno: 140, costo: 2 },
-        { nome: "prayer",        danno: 80,  costo: 1 },
-        { nome: "divine attack", danno: 220, costo: 3 },
+        { nome: "punch",         danno: 30,  costo: 1 },
+        { nome: "smite",         danno: 70,  costo: 2 },
+        { nome: "large slayer",  danno: 140, costo: 3 },
+        { nome: "prayer",        danno: 80,  costo: 2 },
+        { nome: "divine attack", danno: 220, costo: 4 },
       ];
       this._player.mossaSelected = this._player.mosse[0];
     } else if (phase === 3) {
       this._player.mosse = [
-        { nome: "punch",             danno: 30,  costo: 0 },
-        { nome: "smite",             danno: 70,  costo: 1 },
-        { nome: "large slayer",      danno: 140, costo: 2 },
-        { nome: "prayer",            danno: 80,  costo: 1 },
-        { nome: "divine attack",     danno: 220, costo: 3 },
+        { nome: "punch",             danno: 30,  costo: 1 },
+        { nome: "smite",             danno: 70,  costo: 2 },
+        { nome: "large slayer",      danno: 140, costo: 3 },
+        { nome: "prayer",            danno: 80,  costo: 2 },
+        { nome: "divine attack",     danno: 220, costo: 4 },
         { nome: "mita destroyer", danno: 500, costo: 5 },
       ];
       this._player.mossaSelected = this._player.mosse[0];
@@ -654,9 +697,5 @@ private _showEvolutionPopup(): void {
 
   buttonTwiin(params: Phaser.GameObjects.Text, x: number): void {
     this.add.tween({ targets: params, scale: x, duration: 100, ease: "linear", repeat: 0 });
-  }
-
-  info(move: string, dmg: number): void {
-    this._infoText.setText(`${move}: ${dmg} damage`);
   }
 }

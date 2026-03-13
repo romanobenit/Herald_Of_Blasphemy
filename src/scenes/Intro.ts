@@ -15,7 +15,7 @@ export default class Intro extends Phaser.Scene {
   //MUSIC----------------------------------------------------------------------------------------------------------------
   private _music: Phaser.Sound.BaseSound;
   private click: Phaser.Sound.BaseSound;
-
+  private _musicText: Phaser.GameObjects.Text;
 
 
   constructor() {
@@ -52,6 +52,10 @@ export default class Intro extends Phaser.Scene {
 
     this.click = this.sound.add("click1", { loop: false });
     this._music = this.sound.add("music", { loop: true });
+
+    this._musicText = this.add.text(1250, 800, "Music provided by Team Compote - Amillusion", { fontSize: "12px", color: "#ffffff", fontFamily: "Underdog" })
+      .setOrigin(1)
+      .setDepth(1001);
 
     this._background = this.add.sprite(this.game.canvas.width / 2, this.game.canvas.height / 2, "fullSfondo").setOrigin(0.5).setScale(5);
     this.anims.create({
@@ -168,7 +172,7 @@ export default class Intro extends Phaser.Scene {
       .setFontFamily("Underdog")
       .setShadow(2, 2, "#000000", 2, false, true);
 
-    let description: Phaser.GameObjects.Text = this.add.text(260, 230, "Made by \n Benito Romano: Graphic Designer & programmer \n Alessio Moscardino: Sound manager & programmer  \n Daniele Sannino: Programmer & bug fixer \n Luca Paparo: Tester \n Ciro Tarantino: Web developer \n \n Audio tracks credits: \n \n Intro: Team Compote - Amillusion")
+    let description: Phaser.GameObjects.Text = this.add.text(260, 230, "Made by \n Benito Romano: Graphic Designer & programmer \n Alessio Moscardino: Sound manager & programmer  \n Daniele Sannino: Programmer & bug fixer \n Luca Paparo: Tester \n Ciro Tarantino: Web developer \n \n Audio tracks credits: \n \n Music provided by Team Compote - Amillusion")
       .setOrigin(0)
       .setColor("#ffffff")
       .setFontSize(20)
